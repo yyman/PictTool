@@ -94,6 +94,8 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 			MessageBoxButtons::OK);
 
 		cvNamedWindow("ROTATE", 1);
+		// マウスコールバック関数の設定
+		cvSetMouseCallback("ROTATE", onMouse, "ROTATE");
 		tempImage3 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
 	}
 
@@ -190,6 +192,15 @@ System::Void picttoolForm::終了ToolStripMenuItem_Click(System::Object^  sender, 
 	cvReleaseImage(&tempImage);
 	cvReleaseImage(&tempImage2);
 	cvDestroyAllWindows();
+}
+
+// コールバック関数
+void onMouse(int event, int x, int y, int flags, void* param){
+	// eventに起きたイベントの種類が格納される
+	// flagsに共起したイベントが含まれている
+	if(event == CV_EVENT_LBUTTONDOWN && !strcmp((char*)param, "ROTATE")){
+		printf("x:%03d y:%03d\n", x, y);
+	}
 }
 
 [STAThreadAttribute]
