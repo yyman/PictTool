@@ -194,14 +194,6 @@ System::Void picttoolForm::終了ToolStripMenuItem_Click(System::Object^  sender, 
 	cvDestroyAllWindows();
 }
 
-// コールバック関数
-void onMouse(int event, int x, int y, int flags, void* param){
-	// eventに起きたイベントの種類が格納される
-	// flagsに共起したイベントが含まれている
-	if(event == CV_EVENT_LBUTTONDOWN && !strcmp((char*)param, "ROTATE")){
-		printf("x:%03d y:%03d\n", x, y);
-	}
-}
 
 [STAThreadAttribute]
 int main( array<System::String ^> ^args )

@@ -78,6 +78,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MouseEvent.cpp" />
     <ClCompile Include="PictTool.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,9 +97,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Define.h" />
     <ClInclude Include="PictTool.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="Prototype.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PictTool.resx">
