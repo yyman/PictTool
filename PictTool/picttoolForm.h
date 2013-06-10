@@ -1,5 +1,4 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <opencv\cv.h>
@@ -34,15 +33,11 @@
 #pragma comment(lib,"opencv_video245.lib")
 #endif
 
-#define PI 3.141592653589793
 
 using namespace cv;
 
-//コールバック関数のプロトタイプ
-void onMouse(int event, int x, int y, int flags, void* param);
-
 namespace PictTool {
-
+	
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
@@ -90,10 +85,9 @@ namespace PictTool {
 	private: System::Windows::Forms::TextBox^  textBox_bin_value;
 	private: System::Windows::Forms::ToolStripMenuItem^  終了ToolStripMenuItem;
 	private: System::Windows::Forms::Label^  label1;
-	private: System::Windows::Forms::TrackBar^  trackBar_rotate;
-	private: System::Windows::Forms::TextBox^  textBox_rot_value;
+	private: System::Windows::Forms::TrackBar^  trackBar1;
+	private: System::Windows::Forms::TextBox^  textBox1;
 	private: System::Windows::Forms::Label^  label2;
-	private: System::Windows::Forms::CheckBox^  checkBox_rotate;
 
 	private:
 		/// <summary>
@@ -120,13 +114,12 @@ namespace PictTool {
 			this->trackBar_binary = (gcnew System::Windows::Forms::TrackBar());
 			this->textBox_bin_value = (gcnew System::Windows::Forms::TextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
-			this->trackBar_rotate = (gcnew System::Windows::Forms::TrackBar());
-			this->textBox_rot_value = (gcnew System::Windows::Forms::TextBox());
+			this->trackBar1 = (gcnew System::Windows::Forms::TrackBar());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->label2 = (gcnew System::Windows::Forms::Label());
-			this->checkBox_rotate = (gcnew System::Windows::Forms::CheckBox());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_binary))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_rotate))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -149,21 +142,21 @@ namespace PictTool {
 			// 開くToolStripMenuItem
 			// 
 			this->開くToolStripMenuItem->Name = L"開くToolStripMenuItem";
-			this->開くToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->開くToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->開くToolStripMenuItem->Text = L"開く";
 			this->開くToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::開くToolStripMenuItem_Click);
 			// 
 			// セーブToolStripMenuItem
 			// 
 			this->セーブToolStripMenuItem->Name = L"セーブToolStripMenuItem";
-			this->セーブToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->セーブToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->セーブToolStripMenuItem->Text = L"セーブ";
 			this->セーブToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::セーブToolStripMenuItem_Click);
 			// 
 			// 終了ToolStripMenuItem
 			// 
 			this->終了ToolStripMenuItem->Name = L"終了ToolStripMenuItem";
-			this->終了ToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->終了ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->終了ToolStripMenuItem->Text = L"リセット";
 			this->終了ToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::終了ToolStripMenuItem_Click);
 			// 
@@ -219,24 +212,24 @@ namespace PictTool {
 			this->label1->TabIndex = 5;
 			this->label1->Text = L"Binary_Threshold_Value(0-255)";
 			// 
-			// trackBar_rotate
+			// trackBar1
 			// 
-			this->trackBar_rotate->Location = System::Drawing::Point(8, 200);
-			this->trackBar_rotate->Maximum = 360;
-			this->trackBar_rotate->Name = L"trackBar_rotate";
-			this->trackBar_rotate->Size = System::Drawing::Size(264, 45);
-			this->trackBar_rotate->SmallChange = 5;
-			this->trackBar_rotate->TabIndex = 3;
-			this->trackBar_rotate->TickFrequency = 5;
-			this->trackBar_rotate->Value = 1;
-			this->trackBar_rotate->ValueChanged += gcnew System::EventHandler(this, &picttoolForm::trackBar_rotate_Scroll);
+			this->trackBar1->Location = System::Drawing::Point(8, 200);
+			this->trackBar1->Maximum = 360;
+			this->trackBar1->Name = L"trackBar1";
+			this->trackBar1->Size = System::Drawing::Size(264, 45);
+			this->trackBar1->SmallChange = 5;
+			this->trackBar1->TabIndex = 3;
+			this->trackBar1->TickFrequency = 5;
+			this->trackBar1->Value = 1;
+			this->trackBar1->Scroll += gcnew System::EventHandler(this, &picttoolForm::trackBar_binary_Scroll);
 			// 
-			// textBox_rot_value
+			// textBox1
 			// 
-			this->textBox_rot_value->Location = System::Drawing::Point(200, 176);
-			this->textBox_rot_value->Name = L"textBox_rot_value";
-			this->textBox_rot_value->Size = System::Drawing::Size(60, 19);
-			this->textBox_rot_value->TabIndex = 4;
+			this->textBox1->Location = System::Drawing::Point(200, 176);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(60, 19);
+			this->textBox1->TabIndex = 4;
 			// 
 			// label2
 			// 
@@ -247,16 +240,6 @@ namespace PictTool {
 			this->label2->TabIndex = 5;
 			this->label2->Text = L"Image_Rotate(0-360)";
 			// 
-			// checkBox_rotate
-			// 
-			this->checkBox_rotate->AutoSize = true;
-			this->checkBox_rotate->Location = System::Drawing::Point(80, 48);
-			this->checkBox_rotate->Name = L"checkBox_rotate";
-			this->checkBox_rotate->Size = System::Drawing::Size(54, 16);
-			this->checkBox_rotate->TabIndex = 1;
-			this->checkBox_rotate->Text = L"rotate";
-			this->checkBox_rotate->UseVisualStyleBackColor = true;
-			// 
 			// picttoolForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
@@ -264,12 +247,11 @@ namespace PictTool {
 			this->ClientSize = System::Drawing::Size(284, 262);
 			this->Controls->Add(this->label2);
 			this->Controls->Add(this->label1);
-			this->Controls->Add(this->textBox_rot_value);
+			this->Controls->Add(this->textBox1);
 			this->Controls->Add(this->textBox_bin_value);
-			this->Controls->Add(this->trackBar_rotate);
+			this->Controls->Add(this->trackBar1);
 			this->Controls->Add(this->trackBar_binary);
 			this->Controls->Add(this->checkBox_binary);
-			this->Controls->Add(this->checkBox_rotate);
 			this->Controls->Add(this->checkBox_gray);
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
@@ -278,18 +260,16 @@ namespace PictTool {
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_binary))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_rotate))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
 #pragma endregion
-		System::Void 開くToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
-		System::Void セーブToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
-		System::Void 終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
-		System::Void binary(IplImage* input, IplImage* output);
-		System::Void rotate(IplImage* input, IplImage* output);
-		System::Void trackBar_binary_Scroll(System::Object^  sender, System::EventArgs^  e);
-		System::Void trackBar_rotate_Scroll(System::Object^  sender, System::EventArgs^  e);
-	};
+	System::Void 開くToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+	System::Void セーブToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+	System::Void 終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+	System::Void binary(IplImage* input, IplImage* output);
+	System::Void trackBar_binary_Scroll(System::Object^  sender, System::EventArgs^  e);
+};
 }
