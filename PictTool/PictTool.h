@@ -55,6 +55,8 @@ namespace PictTool {
 	private: System::Windows::Forms::TextBox^  textBox_rot_value;
 	private: System::Windows::Forms::Label^  label2;
 	private: System::Windows::Forms::CheckBox^  checkBox_rotate;
+	private: System::Windows::Forms::ToolStripMenuItem^  フォルダ選択ToolStripMenuItem;
+	private: System::Windows::Forms::FolderBrowserDialog^  folderBrowserDialog;
 
 	private:
 		/// <summary>
@@ -72,6 +74,7 @@ namespace PictTool {
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->ファイルToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->開くToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->フォルダ選択ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->セーブToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->終了ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
@@ -85,6 +88,7 @@ namespace PictTool {
 			this->textBox_rot_value = (gcnew System::Windows::Forms::TextBox());
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->checkBox_rotate = (gcnew System::Windows::Forms::CheckBox());
+			this->folderBrowserDialog = (gcnew System::Windows::Forms::FolderBrowserDialog());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_binary))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBar_rotate))->BeginInit();
@@ -101,8 +105,8 @@ namespace PictTool {
 			// 
 			// ファイルToolStripMenuItem
 			// 
-			this->ファイルToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->開くToolStripMenuItem, 
-				this->セーブToolStripMenuItem, this->終了ToolStripMenuItem});
+			this->ファイルToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->開くToolStripMenuItem, 
+				this->フォルダ選択ToolStripMenuItem, this->セーブToolStripMenuItem, this->終了ToolStripMenuItem});
 			this->ファイルToolStripMenuItem->Name = L"ファイルToolStripMenuItem";
 			this->ファイルToolStripMenuItem->Size = System::Drawing::Size(68, 22);
 			this->ファイルToolStripMenuItem->Text = L"ファイル";
@@ -110,21 +114,28 @@ namespace PictTool {
 			// 開くToolStripMenuItem
 			// 
 			this->開くToolStripMenuItem->Name = L"開くToolStripMenuItem";
-			this->開くToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->開くToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->開くToolStripMenuItem->Text = L"開く";
 			this->開くToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::開くToolStripMenuItem_Click);
+			// 
+			// フォルダ選択ToolStripMenuItem
+			// 
+			this->フォルダ選択ToolStripMenuItem->Name = L"フォルダ選択ToolStripMenuItem";
+			this->フォルダ選択ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->フォルダ選択ToolStripMenuItem->Text = L"フォルダ選択";
+			this->フォルダ選択ToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::フォルダ選択ToolStripMenuItem_Click);
 			// 
 			// セーブToolStripMenuItem
 			// 
 			this->セーブToolStripMenuItem->Name = L"セーブToolStripMenuItem";
-			this->セーブToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->セーブToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->セーブToolStripMenuItem->Text = L"セーブ";
 			this->セーブToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::セーブToolStripMenuItem_Click);
 			// 
 			// 終了ToolStripMenuItem
 			// 
 			this->終了ToolStripMenuItem->Name = L"終了ToolStripMenuItem";
-			this->終了ToolStripMenuItem->Size = System::Drawing::Size(124, 22);
+			this->終了ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->終了ToolStripMenuItem->Text = L"リセット";
 			this->終了ToolStripMenuItem->Click += gcnew System::EventHandler(this, &picttoolForm::終了ToolStripMenuItem_Click);
 			// 
@@ -246,6 +257,7 @@ namespace PictTool {
 		}
 #pragma endregion
 		System::Void 開くToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void フォルダ選択ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void セーブToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void 終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void binary(IplImage* input, IplImage* output);

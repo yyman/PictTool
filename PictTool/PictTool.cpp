@@ -101,7 +101,95 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 	Marshal::FreeHGlobal(IntPtr(filename));
 }
 
+//==============================================================================================
+//メニューストリップの「開く」が選択された時
+System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^sender, System::EventArgs ^e)
+{
 
+	//flags=1は画像サイズに合わせてウィンドウが作られるので、ウィンドウ固定。
+	//ウィンドウ可変にしたい場合はflags=0にしておく
+	cvNamedWindow("INPUT", 1);   
+	char *filename;
+
+	//openFileDialogの使用
+	//===フィルタプロパティ：拡張子制限
+	openFileDialog->Filter = "JPEG(*.jpg)|*.jpg|PNG(*.png)|*.png|PPM(*.ppm)|*.ppm";
+
+	//ディレクトリ一覧でOKが押されなかった場合は読み込み失敗
+	if(openFileDialog->ShowDialog() != Windows::Forms::DialogResult::OK)
+	{
+		MessageBox::Show("openFileDialogで落ちました");
+		return;
+	}
+
+	//=FileNameプロパティでファイル名を得る。
+	//===String型になっているため、char*へキャストします
+	filename = (char*)Marshal::StringToHGlobalAnsi(openFileDialog->FileName).ToPointer();
+
+	//入力画像確保
+	inputImage = cvLoadImage(filename);
+	//編集しやすいように一定のサイズに画像を変更
+	int inputw = inputImage->width;
+	int inputh = inputImage->height;
+	int M = max(inputw, inputh);//縦横の大きい方を取得
+	int m = min(inputw, inputh);
+	int o = 600 * m / M;
+	if(M == inputw) resizetemp = cvCreateImage( cvSize(600,o),IPL_DEPTH_8U, 3);
+	else  resizetemp = cvCreateImage( cvSize(o,600),IPL_DEPTH_8U, 3);
+	cvResize(inputImage,resizetemp,CV_INTER_CUBIC);
+	inputImage = cvCloneImage(resizetemp);
+	cvShowImage("INPUT", inputImage);
+
+
+	//==============================チェックボックスによる条件分岐=============================//
+	//チェックボックスの「グレースケール化」＝(オブジェクト名：checkBox_gray)
+	//===チェックが入っている場合に処理を実行する
+	if(checkBox_gray->CheckState == System::Windows::Forms::CheckState::Checked)
+	{
+		cvNamedWindow("GRAY", 1);
+		tempImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U, 1);
+
+		//cvCvtColor(IplImage* input, IplImage* output, flag)
+		//===BGR画像を濃淡画像へ変化させる場合はCV_BGR2GRAYを使用
+		cvCvtColor(inputImage, tempImage, CV_BGR2GRAY);
+		cvShowImage("GRAY", tempImage);
+	}
+
+	//チェックボックスの「2値化」＝(オブジェクト名：checkBox_binary)
+	//===２値化かつ、グレースケール化にチェックが入っている場合のみ処理を実行
+	if((checkBox_gray->CheckState == System::Windows::Forms::CheckState::Checked) 
+		&&(checkBox_binary->CheckState == System::Windows::Forms::CheckState::Checked))
+	{
+
+		//MessageBox::Show("メッセージ内容","メッセージボックス名","メッセージボックスのボタンの種類")
+		MessageBox::Show(
+			"2値化の閾値をトラックバーで決定します。テキストボックスの値が閾値です。\nトラックバーを動かさないと2値化は開始されません",
+			"使用上の注意",
+			MessageBoxButtons::OK);
+
+		cvNamedWindow("BINARY", 1);
+		tempImage2 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
+	}
+
+	//チェックボックスの「回転」＝(オブジェクト名：checkBox_rotate)
+	//===２値化かつ、回転にチェックが入っている場合のみ処理を実行
+	if((checkBox_rotate->CheckState == System::Windows::Forms::CheckState::Checked))
+	{
+		//MessageBox::Show("メッセージ内容","メッセージボックス名","メッセージボックスのボタンの種類")
+		MessageBox::Show(
+			"画像の回転の角度をトラックバーで決定します。テキストボックスの値が閾値です。\nトラックバーを動かさないと回転は開始されません",
+			"使用上の注意",
+			MessageBoxButtons::OK);
+
+		cvNamedWindow("ROTATE", 1);
+		// マウスコールバック関数の設定
+		cvSetMouseCallback("ROTATE", onMouse, "ROTATE");
+		tempImage3 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
+	}
+
+	//メモリの解放
+	Marshal::FreeHGlobal(IntPtr(filename));
+}
 
 
 //==============================================================================================
