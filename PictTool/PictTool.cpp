@@ -11,10 +11,18 @@ IplImage *tempImage;//作業領域
 IplImage *tempImage2;//作業領域
 IplImage *tempImage3;//作業領域
 
+string cascadeName = "data\\haarcascade_frontalface_alt.xml";//学習済み検出器
+CascadeClassifier cascade;
+
 //==============================================================================================
 //メニューストリップの「開く」が選択された時
 System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, System::EventArgs ^e)
 {
+	//初期読み込み
+	// 学習済み検出器の読み込み
+    if(!cascade.load(cascadeName)){
+		cout<<"検出器が読み込めませんでした"<<endl;
+	}
 
 	//flags=1は画像サイズに合わせてウィンドウが作られるので、ウィンドウ固定。
 	//ウィンドウ可変にしたい場合はflags=0にしておく
@@ -38,17 +46,8 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 
 	//入力画像確保
 	inputImage = cvLoadImage(filename);
-	//編集しやすいように一定のサイズに画像を変更
-	int inputw = inputImage->width;
-	int inputh = inputImage->height;
-	int M = max(inputw, inputh);//縦横の大きい方を取得
-	int m = min(inputw, inputh);
-	int o = 600 * m / M;
-	if(M == inputw) resizetemp = cvCreateImage( cvSize(600,o),IPL_DEPTH_8U, 3);
-	else  resizetemp = cvCreateImage( cvSize(o,600),IPL_DEPTH_8U, 3);
-	cvResize(inputImage,resizetemp,CV_INTER_CUBIC);
-	inputImage = cvCloneImage(resizetemp);
-	cvShowImage("INPUT", inputImage);
+	resizetemp = resizeImage(inputImage);
+	cvShowImage("INPUT", resizetemp);
 
 
 	//==============================チェックボックスによる条件分岐=============================//
@@ -249,7 +248,29 @@ System::Void picttoolForm::rotate(IplImage *input, IplImage *output)
 	m[5] = inputImage->height * 0.5;
 	cvInitMatHeader (&M, 2, 3, CV_32FC1, m, CV_AUTOSTEP);
 	cvGetQuadrangleSubPix (inputImage, tempImage3, &M);
-	cvShowImage("ROTATE", tempImage3);
+	
+
+	//顔検出テスト
+	Mat temp3(tempImage3);
+	// 輝度画像に変換
+    Mat grayImage;
+    cvtColor(temp3, grayImage, CV_RGB2GRAY);
+	// 顔検出を実行
+    vector<Rect> faces;
+    cascade.detectMultiScale(
+        grayImage,   // 画像
+        faces,       // 出力される矩形
+        1.1,         // 縮小用のスケール
+        2,           // 最小の投票数
+        CV_HAAR_SCALE_IMAGE,  // フラグ
+		cv::Size(30, 30) // 最小の矩形
+    );
+    // 矩形を描く
+    for (vector<Rect>::iterator iter = faces.begin(); iter != faces.end(); iter ++) {
+        rectangle(temp3, *iter, Scalar(255, 0, 0), 5);
+    }
+	
+	imshow("ROTATE", resizeImage(temp3));
 }
 
 
@@ -343,7 +364,7 @@ void onMouse(int event, int x, int y, int flags, void* param){
 	//四角の描画
 	// Green，太さ5，8近傍連結
     cvRectangle(tempImage3, cv::Point(x-200,y-200), cv::Point(x+200, y+200), cv::Scalar(0,200,0), 5, 8);
-	cvShowImage("ROTATE", tempImage3);
+	//cvShowImage("ROTATE", tempImage3);
 }
 
 [STAThreadAttribute]
