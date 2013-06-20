@@ -8,8 +8,8 @@ using namespace System::Runtime::InteropServices;
 IplImage *inputImage;//入力画像
 IplImage *resizetemp;//リサイズ用
 IplImage *tempImage;//作業領域
-IplImage *tempImage2;//作業領域
-IplImage *tempImage3;//作業領域
+IplImage *binaryImage;//作業領域
+IplImage *rotateImage;//作業領域
 
 string cascadeName = "data\\haarcascade_frontalface_alt.xml";//学習済み検出器
 CascadeClassifier cascade;
@@ -20,6 +20,7 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 {
 	//初期読み込み
 	// 学習済み検出器の読み込み
+	cout<<"検出器読み込み開始"<<endl;
     if(!cascade.load(cascadeName)){
 		cout<<"検出器が読み込めませんでした"<<endl;
 	}
@@ -77,7 +78,7 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 			MessageBoxButtons::OK);
 
 		cvNamedWindow("BINARY", 1);
-		tempImage2 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
+		binaryImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
 	}
 
 	//チェックボックスの「回転」＝(オブジェクト名：checkBox_rotate)
@@ -93,7 +94,7 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 		cvNamedWindow("ROTATE", 1);
 		// マウスコールバック関数の設定
 		cvSetMouseCallback("ROTATE", onMouse, "ROTATE");
-		tempImage3 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
+		rotateImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
 	}
 
 	//メモリの解放
@@ -112,10 +113,10 @@ System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^s
 
 	//openFileDialogの使用
 	//===フィルタプロパティ：拡張子制限
-	openFileDialog->Filter = "JPEG(*.jpg)|*.jpg|PNG(*.png)|*.png|PPM(*.ppm)|*.ppm";
+	folderBrowserDialog->Filter = "JPEG(*.jpg)|*.jpg|PNG(*.png)|*.png|PPM(*.ppm)|*.ppm";
 
 	//ディレクトリ一覧でOKが押されなかった場合は読み込み失敗
-	if(openFileDialog->ShowDialog() != Windows::Forms::DialogResult::OK)
+	if(folderBrowserDialog->ShowDialog() != Windows::Forms::DialogResult::OK)
 	{
 		MessageBox::Show("openFileDialogで落ちました");
 		return;
@@ -123,7 +124,7 @@ System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^s
 
 	//=FileNameプロパティでファイル名を得る。
 	//===String型になっているため、char*へキャストします
-	filename = (char*)Marshal::StringToHGlobalAnsi(openFileDialog->FileName).ToPointer();
+	filename = (char*)Marshal::StringToHGlobalAnsi(folderBrowserDialog->FileName).ToPointer();
 
 	//入力画像確保
 	inputImage = cvLoadImage(filename);
@@ -167,7 +168,7 @@ System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^s
 			MessageBoxButtons::OK);
 
 		cvNamedWindow("BINARY", 1);
-		tempImage2 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
+		binaryImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
 	}
 
 	//チェックボックスの「回転」＝(オブジェクト名：checkBox_rotate)
@@ -183,7 +184,7 @@ System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^s
 		cvNamedWindow("ROTATE", 1);
 		// マウスコールバック関数の設定
 		cvSetMouseCallback("ROTATE", onMouse, "ROTATE");
-		tempImage3 = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
+		rotateImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,3);
 	}
 
 	//メモリの解放
@@ -207,7 +208,7 @@ System::Void picttoolForm::セーブToolStripMenuItem_Click(System::Object ^sender,
 	//openFileDialog同様に、Stringをchar*へキャストしてcvSaveImageで保存
 	filename = (char*)Marshal::StringToHGlobalAnsi(saveFileDialog->FileName).ToPointer();
 	cvSaveImage(filename, tempImage);   
-	//グレースケールならtempImage, ２値化画像ならtempImage2
+	//グレースケールならtempImage, ２値化画像ならbinaryImage
 
 	//メモリの解放
 	Marshal::FreeHGlobal(IntPtr(filename));
@@ -224,7 +225,7 @@ System::Void picttoolForm::binary(IplImage *input, IplImage *output)
 	//２値化処理
 	//===cvThreshold(入力、出力、閾値、最大値、フラグ)
 	cvThreshold(input, output, levels, 255, CV_THRESH_BINARY);
-	cvShowImage("BINARY", tempImage2);
+	cvShowImage("BINARY", binaryImage);
 }
 
 
@@ -247,11 +248,11 @@ System::Void picttoolForm::rotate(IplImage *input, IplImage *output)
 	m[4] = m[0];
 	m[5] = inputImage->height * 0.5;
 	cvInitMatHeader (&M, 2, 3, CV_32FC1, m, CV_AUTOSTEP);
-	cvGetQuadrangleSubPix (inputImage, tempImage3, &M);
+	cvGetQuadrangleSubPix (inputImage, output, &M);
 	
 
 	//顔検出テスト
-	Mat temp3(tempImage3);
+	Mat temp3(output);
 	// 輝度画像に変換
     Mat grayImage;
     cvtColor(temp3, grayImage, CV_RGB2GRAY);
@@ -270,7 +271,7 @@ System::Void picttoolForm::rotate(IplImage *input, IplImage *output)
         rectangle(temp3, *iter, Scalar(255, 0, 0), 5);
     }
 	
-	imshow("ROTATE", resizeImage(temp3));
+	imshow("ROTATE", temp3);
 }
 
 
@@ -280,7 +281,7 @@ System::Void picttoolForm::trackBar_binary_Scroll(System::Object ^sender, System
 {
 	//テキストボックスにスクロールバーの値を記述する
 	textBox_bin_value->Text = System::String::Concat("", trackBar_binary->Value);
-	binary(tempImage, tempImage2);
+	binary(tempImage, binaryImage);
 }
 
 //==============================================================================================
@@ -289,7 +290,7 @@ System::Void picttoolForm::trackBar_rotate_Scroll(System::Object ^sender, System
 {
 	//テキストボックスにスクロールバーの値を記述する
 	textBox_rot_value->Text = System::String::Concat("", trackBar_rotate->Value);
-	rotate(inputImage, tempImage3);
+	rotate(inputImage, resizetemp);
 }
 
 //メニューストリップの「終了」が選択されたらメモリ解放とウィンドウ破棄
@@ -297,7 +298,8 @@ System::Void picttoolForm::終了ToolStripMenuItem_Click(System::Object^  sender, 
 {
 	cvReleaseImage(&inputImage);
 	cvReleaseImage(&tempImage);
-	cvReleaseImage(&tempImage2);
+	cvReleaseImage(&binaryImage);
+	cvReleaseImage(&resizetemp);
 	cvDestroyAllWindows();
 }
 
@@ -363,8 +365,12 @@ void onMouse(int event, int x, int y, int flags, void* param){
 
 	//四角の描画
 	// Green，太さ5，8近傍連結
-    cvRectangle(tempImage3, cv::Point(x-200,y-200), cv::Point(x+200, y+200), cv::Scalar(0,200,0), 5, 8);
-	//cvShowImage("ROTATE", tempImage3);
+	IplImage *tempmouse = cvCloneImage(resizetemp);
+    cvRectangle(tempmouse, cv::Point(x-200,y-200), cv::Point(x+200, y+200), cv::Scalar(0,200,0), 5, 8);
+	cvShowImage("ROTATE", tempmouse);
+	
+	//メモリの解放
+	cvReleaseImage(&tempmouse);
 }
 
 [STAThreadAttribute]
