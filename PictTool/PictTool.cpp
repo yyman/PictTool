@@ -105,7 +105,7 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 //メニューストリップの「開く」が選択された時
 System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^sender, System::EventArgs ^e)
 {
-
+/*
 	//flags=1は画像サイズに合わせてウィンドウが作られるので、ウィンドウ固定。
 	//ウィンドウ可変にしたい場合はflags=0にしておく
 	cvNamedWindow("INPUT", 1);   
@@ -188,7 +188,7 @@ System::Void picttoolForm::フォルダ選択ToolStripMenuItem_Click(System::Object ^s
 	}
 
 	//メモリの解放
-	Marshal::FreeHGlobal(IntPtr(filename));
+	Marshal::FreeHGlobal(IntPtr(filename));*/
 }
 
 
