@@ -8,3 +8,4 @@ void onMouse(int event, int x, int y, int flags, void* param);
 //ŠÈˆÕˆ—Œn
 IplImage* resizeImage(IplImage *src);
 Mat resizeImage(Mat src);
+Mat histImage(Mat src);

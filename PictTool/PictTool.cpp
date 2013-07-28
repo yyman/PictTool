@@ -8,6 +8,7 @@ using namespace System::Runtime::InteropServices;
 IplImage *inputImage;//入力画像
 IplImage *resizetemp;//リサイズ用
 IplImage *tempImage;//作業領域
+Mat histtempImage;//作業領域
 IplImage *binaryImage;//作業領域
 IplImage *rotateImage;//作業領域
 
@@ -57,12 +58,15 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 	if(checkBox_gray->CheckState == System::Windows::Forms::CheckState::Checked)
 	{
 		cvNamedWindow("GRAY", 1);
-		tempImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U, 1);
+		cvNamedWindow("HIST", 1);
+		tempImage = cvCreateImage(cvGetSize(resizetemp), IPL_DEPTH_8U, 1);
 
 		//cvCvtColor(IplImage* input, IplImage* output, flag)
 		//===BGR画像を濃淡画像へ変化させる場合はCV_BGR2GRAYを使用
-		cvCvtColor(inputImage, tempImage, CV_BGR2GRAY);
+		cvCvtColor(resizetemp, tempImage, CV_BGR2GRAY);
+		histtempImage = histImage(tempImage);
 		cvShowImage("GRAY", tempImage);
+		imshow("HIST", histtempImage);
 	}
 
 	//チェックボックスの「2値化」＝(オブジェクト名：checkBox_binary)
@@ -78,7 +82,7 @@ System::Void picttoolForm::開くToolStripMenuItem_Click(System::Object ^sender, S
 			MessageBoxButtons::OK);
 
 		cvNamedWindow("BINARY", 1);
-		binaryImage = cvCreateImage(cvGetSize(inputImage), IPL_DEPTH_8U,1);
+		binaryImage = cvCreateImage(cvGetSize(resizetemp), IPL_DEPTH_8U,1);
 	}
 
 	//チェックボックスの「回転」＝(オブジェクト名：checkBox_rotate)
@@ -270,7 +274,7 @@ System::Void picttoolForm::rotate(IplImage *input, IplImage *output)
     for (vector<Rect>::iterator iter = faces.begin(); iter != faces.end(); iter ++) {
         rectangle(temp3, *iter, Scalar(255, 0, 0), 5);
     }
-	
+	temp3 = resizeImage(temp3);
 	imshow("ROTATE", temp3);
 }
 
@@ -290,7 +294,7 @@ System::Void picttoolForm::trackBar_rotate_Scroll(System::Object ^sender, System
 {
 	//テキストボックスにスクロールバーの値を記述する
 	textBox_rot_value->Text = System::String::Concat("", trackBar_rotate->Value);
-	rotate(inputImage, resizetemp);
+	rotate(inputImage, rotateImage);
 }
 
 //メニューストリップの「終了」が選択されたらメモリ解放とウィンドウ破棄
@@ -365,7 +369,7 @@ void onMouse(int event, int x, int y, int flags, void* param){
 
 	//四角の描画
 	// Green，太さ5，8近傍連結
-	IplImage *tempmouse = cvCloneImage(resizetemp);
+	IplImage *tempmouse = cvCloneImage(rotateImage);
     cvRectangle(tempmouse, cv::Point(x-200,y-200), cv::Point(x+200, y+200), cv::Scalar(0,200,0), 5, 8);
 	cvShowImage("ROTATE", tempmouse);
 	
