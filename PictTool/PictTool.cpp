@@ -9,6 +9,8 @@ IplImage *inputImage;//入力画像
 IplImage *resizetemp;//リサイズ用
 IplImage *tempImage;//作業領域
 Mat histtempImage;//作業領域
+Mat tempgrImage;//作業領域
+Mat faceImage;//作業領域
 IplImage *binaryImage;//作業領域
 IplImage *rotateImage;//作業領域
 
@@ -272,6 +274,13 @@ System::Void picttoolForm::rotate(IplImage *input, IplImage *output)
     );
     // 矩形を描く
     for (vector<Rect>::iterator iter = faces.begin(); iter != faces.end(); iter ++) {
+		faceImage = temp3(*iter);
+		imshow("face", faceImage);
+		
+	cvtColor(faceImage, tempgrImage, CV_BGR2GRAY);
+	histtempImage = histImage(tempgrImage);
+	imshow("faceGR", tempgrImage);
+	imshow("HIST2", histtempImage);
         rectangle(temp3, *iter, Scalar(255, 0, 0), 5);
     }
 	temp3 = resizeImage(temp3);
